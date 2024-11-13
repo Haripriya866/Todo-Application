@@ -1,0 +1,58 @@
+### 
+
+
+
+###
+
+PUT http://localhost:3006/change-password
+Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiaGFyaXByaXlhMTEiLCJpYXQiOjE3MzE0ODMwMDR9.8dvbMv4lUHMxaa88nw3Xg-3Nu0Ad6A_UGdZ6gdLA_Xc
+Content-Type: application/json
+
+{
+  "name": "haripri",
+  "oldPassword": "8888",
+  "newPassword": "haripriya@123"
+}
+
+###
+
+DELETE http://localhost:3006/users/haripriya12456
+Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiaGFyaXByaXlhMTEiLCJpYXQiOjE3MzE0ODIwODJ9.J4TkKRIg0HcU-ljNrzOLObp55bxw-dddLK3cdXzCmV4
+
+###
+
+GET http://localhost:3006/users/
+Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiaGFyaXByaXlhMTEiLCJpYXQiOjE3MzE0ODIwODJ9.J4TkKRIg0HcU-ljNrzOLObp55bxw-dddLK3cdXzCmV4
+
+//todo CRUD OPERATIONS
+
+###
+
+POST http://localhost:3006/todos/
+Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoicHJpeWEiLCJpYXQiOjE3MzE0OTczNzJ9.OuLJMMhQ8FhRB7m4QSOqQ25zzj5MnUlX_rogc9zEfK8
+
+Content-Type:application/json
+
+{
+  "todo": "Bootstrap",
+  "status": "completed",
+}
+
+###
+ 
+DELETE http://localhost:3006/todos/2d8dd74c-fcb1-4ed7-b854-e7d165102acd/
+
+###
+
+GET http://localhost:3006/todos/?status=done
+
+###
+
+GET http://localhost:3006/todos/521896da-dec6-42b2-91cb-d90e95b91e6f
+
+###
+
+PUT http://localhost:3006/todos/c257b611-825c-4a38-b398-6ca4cbc129a0/
+Content-Type:application/json
+
+{ "status": "DONE" }

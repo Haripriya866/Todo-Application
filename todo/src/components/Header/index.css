@@ -1,0 +1,25 @@
+.header-container{
+    background-color: #ffe619;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top:10px;
+}
+.nav-items-container{
+    display: flex;
+    justify-content: center;
+    align-self: center;
+}
+.nav-link{
+    text-decoration: none;
+    color:black;
+}
+.list-item{
+    list-style-type: none;
+}
+.name{
+    display: flex;
+    align-items: center;
+    margin-left: 13px;
+
+}
