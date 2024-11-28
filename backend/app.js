@@ -1,6 +1,5 @@
 const express = require("express");
 const cors = require("cors");
-const fetch = require("node-fetch");
 const uuid = require("uuid");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -76,25 +75,7 @@ app.post("/register", async (request, response) => {
 
     const query = `INSERT INTO userDetails (id, name, email, password) VALUES (?, ?, ?, ?)`;
     await db.run(query, [userId, name, email, hashedPassword]);
-
-    // Forward the request to GoRest API
-    const url = "https://gorest.co.in/public-api/users";
-    const options = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Authorization:
-          "Bearer 262a92254071a95568d328b153edf8570d3a6412a382dffee509c7f431839c7d", // Keep the token here in backend
-      },
-      body: JSON.stringify({ id: userId, name, email, password }),
-    };
-    // Send request to GoRest API
-    const apiResponse = await fetch(url, options);
-    const jsonData = await apiResponse.json();
-    response
-      .status(200)
-      .json({ message: "User created successfully", jsonData });
+    response.status(200).json({ message: "User created successfully" });
   } else {
     return response.status(400).json({ error: "User already exists" });
   }
@@ -160,48 +141,29 @@ app.put("/change-password", authenticateToken, async (request, response) => {
   }
 });
 
-//delete api
-app.delete("/users/:name", authenticateToken, async (request, response) => {
-  const { name } = request.params;
-
-  const deleteUserQuery = `
-    DELETE FROM userDetails
-    WHERE name = ?
-  `;
-
-  try {
-    const result = await db.run(deleteUserQuery, [name]);
-    if (result.changes === 0) {
-      return response.status(404).send("User not found");
-    }
-
-    response.send(`${name} deleted successfully`);
-  } catch (error) {
-    response.status(500).send("Error deleting user: " + error.message);
-  }
-});
-
 //get users api
 app.get("/users/", authenticateToken, async (request, response) => {
+  const name = request.name;
+  console.log(name);
   const getStateQuery = `
-    SELECT * FROM userDetails
+    SELECT * FROM userDetails WHERE name='${name}'
     `;
   const usersArray = await db.all(getStateQuery);
   response.send(usersArray);
 });
 
-//todo CRUD Ooperations
+//todo CRUD Operations
 
 //create todo api
 app.post("/todos/", authenticateToken, async (request, response) => {
   const { todo, status } = request.body;
-  const userName = request.name; // Extract the authenticated user's name
+  const name = request.name;
 
   if (!todo || !status) {
     return response.status(400).send("Todo and status are required");
   }
-  const userCheckQuery = `SELECT * FROM userDetails WHERE name = '${userName}'`;
-  const user = await db.get(userCheckQuery);
+  const userCheckQuery = `SELECT * FROM userDetails WHERE name = ?`;
+  const user = await db.get(userCheckQuery, [name]);
   if (!user) {
     return response.status(400).send("User does not exist");
   }
@@ -209,7 +171,7 @@ app.post("/todos/", authenticateToken, async (request, response) => {
   const id = uuid.v4();
   const addTodoQuery = `
     INSERT INTO todo (id, todo, status,user_name)
-    VALUES ('${id}', '${todo}', '${status}','${userName}')
+    VALUES ("${id}", "${todo}", "${status}","${name}")
   `;
   try {
     await db.run(addTodoQuery);
@@ -220,11 +182,12 @@ app.post("/todos/", authenticateToken, async (request, response) => {
 });
 
 //delete todo api
-app.delete("/todos/:id/", async (request, response) => {
+app.delete("/todos/:id/", authenticateToken, async (request, response) => {
   const { id } = request.params;
+  const name = request.name;
   const deleteTodoQuery = `
     DELETE FROM todo
-    WHERE id='${id}'
+    WHERE id='${id}' AND user_name='${name}'
     `;
 
   try {
@@ -232,41 +195,43 @@ app.delete("/todos/:id/", async (request, response) => {
     response.send("Todo Successfully Deleted");
   } catch (error) {
     console.error("Error inserting todo:", error);
-    response.status(500).send("Error adding todo");
+    response.status(500).send("Error deleting todo");
   }
 });
 
 //get todos array
-app.get("/todos/", async (request, response) => {
-  const { search_q = "", status } = request.query;
+app.get("/todos/", authenticateToken, async (request, response) => {
+  const { status } = request.query;
+  const name = request.name;
 
   const getTodosData = `
        SELECT * FROM todo
-       WHERE todo LIKE '%${search_q}%' AND status='${status}'
+       WHERE status='${status}' AND user_name='${name}'
        `;
   try {
     const todoArray = await db.all(getTodosData);
     response.send(todoArray);
   } catch (error) {
     console.error("Error inserting todo:", error);
-    response.status(500).send("Error adding todo");
+    response.status(500).send("Error getting todos");
   }
 });
 
 //get todo
-app.get("/todos/:id/", async (request, response) => {
+app.get("/todos/:id/", authenticateToken, async (request, response) => {
   const { id } = request.params;
+  const name = request.name;
   const getTodoQuery = `
     
     SELECT * FROM todo
-    WHERE id='${id}'`;
+    WHERE id='${id}' AND user_name='${name}'`;
 
   try {
     const dbResponse = await db.get(getTodoQuery);
     response.send(dbResponse);
   } catch (error) {
     console.error("Error inserting todo:", error);
-    response.status(500).send("Error adding todo");
+    response.status(500).send("Error getting todo");
   }
 });
 
@@ -274,6 +239,7 @@ app.get("/todos/:id/", async (request, response) => {
 app.put("/todos/:id/", authenticateToken, async (request, response) => {
   const { id } = request.params;
   const { status } = request.body;
+  const name = request.name;
 
   if (!status) {
     return response.status(400).send("status are required");
@@ -283,14 +249,13 @@ app.put("/todos/:id/", authenticateToken, async (request, response) => {
     UPDATE todo
     SET 
     status='${status}'
-  WHERE id="${id}"
+  WHERE id='${id}' AND user_name='${name}'
     `;
   try {
-    const dbResponse = await db.run(updateTodoQuery);
+    await db.run(updateTodoQuery);
     response.send(`Status Updated`);
   } catch (error) {
     console.error("Error inserting todo:", error);
     response.status(500).send("Error adding todo");
   }
 });
-module.exports = app;

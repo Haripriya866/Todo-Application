@@ -127,16 +127,15 @@ class Login extends Component {
         const jwtToken = data.jwtToken;
 
         localStorage.setItem("jwtToken", jwtToken);
-
+        const { history } = this.props; //extra line
+        history.replace("/todos"); //extra line
       } else {
         const errorData = await response.json();
-        console.error("Error: ", errorData); 
+        console.error("Error: ", errorData);
       }
     } catch (error) {
       console.error("Login failed: ", error);
     }
-
-    
   };
 
   render() {

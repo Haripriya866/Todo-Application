@@ -123,7 +123,9 @@ class Registration extends Component {
 
     const response = await fetch(url, options);
     if (response.ok === true) {
+      const {history}=this.props //extra line
       const data = await response.json();
+      history.push('/login/') //extra line
       console.log(data);
     } else {
       const errorData = await response.json();

@@ -4,6 +4,7 @@ import { BrowserRouter, Switch, Route } from "react-router-dom";
 import Registration from "./components/Registration";
 import Login from "./components/Login";
 import Header from "./components/Header";
+import TodoApplication from "./components/TodoApplication";
 
 import "./App.css";
 
@@ -16,6 +17,7 @@ class App extends Component {
           <Switch>
             <Route exact path="/register" component={Registration} />
             <Route exact path="/login/" component={Login} />
+            <Route exact path="/todos" component={TodoApplication} />
           </Switch>
         </div>
       </BrowserRouter>
