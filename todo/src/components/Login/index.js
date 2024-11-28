@@ -14,7 +14,7 @@ class Login extends Component {
 
   handleInputChange = (event) => {
     const { name, value } = event.target;
-    this.setState({ [name]: value, [`${name}Error`]: "" }); // Clear the error when user types
+    this.setState({ [name]: value, [`${name}Error`]: "" }); 
   };
 
   renderNameInputField = () => {
@@ -127,8 +127,8 @@ class Login extends Component {
         const jwtToken = data.jwtToken;
 
         localStorage.setItem("jwtToken", jwtToken);
-        const { history } = this.props; //extra line
-        history.replace("/todos"); //extra line
+        const { history } = this.props; 
+        history.replace("/todos"); 
       } else {
         const errorData = await response.json();
         console.error("Error: ", errorData);
